@@ -1,74 +1,144 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, TextInput, TouchableOpacity, FlatList, View } from 'react-native';
+import { Task } from '@/utils/types';
+import TaskItem from '@/components/TaskItem';
+import { readTasksFromFile, writeTasksToFile } from '@/utils/fileSystemUtils';
+import { Colors } from '@/constants/Colors';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const TodoApp = () => {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [newTask, setNewTask] = useState<string>('');
 
-export default function HomeScreen() {
+  const addTask = (): void => {
+    if (newTask.trim()) {
+      const newTaskObj: Task = { id: Date.now().toString(), text: newTask, completed: false };
+      const updatedTasks = [...tasks, newTaskObj];
+      setTasks(updatedTasks);
+      writeTasksToFile(updatedTasks);
+      setNewTask('');
+    }
+  };
+
+  const toggleTaskCompletion = (id: string): void => {
+    const updatedTasks = tasks.map(task =>
+      task.id === id ? { ...task, completed: !task.completed } : task
+    );
+    setTasks(updatedTasks);
+    writeTasksToFile(updatedTasks);
+  };
+
+  const deleteTask = (id: string): void => {
+    const updatedTasks = tasks.filter(task => task.id !== id);
+    setTasks(updatedTasks);
+    writeTasksToFile(updatedTasks);
+  };
+
+  useEffect(() => {
+    const loadTasks = async () => {
+      const loadedTasks = await readTasksFromFile();
+      setTasks(loadedTasks);
+    };
+
+    loadTasks();
+  }, []);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      <Text style={styles.header}>To-Do List</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Add a new task"
+        value={newTask}
+        onChangeText={setNewTask}
+      />
+      <TouchableOpacity style={styles.addButton} onPress={addTask}>
+        <Text style={styles.addButtonText}>Add Task</Text>
+      </TouchableOpacity>
+      <FlatList
+        data={tasks}
+        renderItem={({ item }) => (
+          <TaskItem
+            task={item}
+            onToggleCompletion={toggleTaskCompletion}
+            onDelete={deleteTask}
+          />
+        )}
+        keyExtractor={item => item.id}
+      />
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: Colors.background, // Light background from custom colors
+    justifyContent: 'flex-start',
+  },
+  header: {
+    fontSize: 36,
+    fontWeight: '600',
+    color: Colors.text, // Dark text from custom colors
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  input: {
+    height: 50,
+    borderColor: Colors.primaryButtonColor, // Primary button blue for input border
+    borderWidth: 2,
+    borderRadius: 10,
+    paddingLeft: 15,
+    fontSize: 18,
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  addButton: {
+    backgroundColor: Colors.primaryButtonColor, // Blue for Add button
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginBottom: 30,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  addButtonText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  taskItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    padding: 12,
+    marginVertical: 8,
+    backgroundColor: Colors.facebookLightGray, // Light gray background for tasks
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  taskText: {
+    fontSize: 18,
+    color: Colors.text, // Dark text color
+    flex: 1,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  taskCompletedText: {
+    textDecorationLine: 'line-through',
+    color: Colors.facebookDarkBlue, // Gray color for completed tasks
+  },
+  deleteButton: {
+    color: Colors.errorRed, // Red for delete button
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
+
+export default TodoApp;
