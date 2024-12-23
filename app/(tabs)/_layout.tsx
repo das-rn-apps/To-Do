@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Colors } from '@/constants/Colors';
-import { HomeIcon, FriendsIcon } from '@/assets/icons/Icons';
+import { HomeIcon, NotificationsIcon } from '@/assets/icons/Icons';
 
 
 export default function TabLayout() {
@@ -22,10 +22,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="dashboard"
         options={{
-          title: 'Explore',
-          tabBarIcon: FriendsIcon,
+          title: 'Dashboard',
+          tabBarIcon: NotificationsIcon,
         }}
       />
     </Tabs>

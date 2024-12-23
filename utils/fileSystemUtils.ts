@@ -1,5 +1,5 @@
 import * as FileSystem from 'expo-file-system';
-import { Task } from './types';
+import { Task } from '../types';
 
 const fileUri = FileSystem.documentDirectory + 'todos.json';
 

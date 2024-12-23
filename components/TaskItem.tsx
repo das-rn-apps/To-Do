@@ -1,7 +1,7 @@
 // TaskItem.tsx
 import React from 'react';
 import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
-import { Task } from '@/utils/types';
+import { Task } from '@/types';
 import { Colors } from '@/constants/Colors';
 
 interface TaskItemProps {
