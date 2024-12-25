@@ -10,9 +10,8 @@ const TaskCRUD = () => {
 
     // Filter tasks based on the status
     const filteredTasks = tasks.filter((task) => {
-        if (status === 'Pending') return !task.completed && !task.archived;
-        if (status === 'Completed') return task.completed && !task.archived;
-        if (status === 'In Progress') return task.inProgress && !task.archived;
+        if (status === 'Pending') return task.pending;
+        if (status === 'Completed') return task.completed;
         if (status === 'Archived') return task.archived;
         return true;
     });

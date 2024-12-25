@@ -3,21 +3,20 @@ import { StyleSheet, Text, View, Image, Pressable } from 'react-native';
 import { useTaskContext } from '@/Context/TaskContext';
 import { Colors } from '@/constants/Colors';
 import { router } from 'expo-router';
+import PerformanceGraph from '@/components/PerformanceGraph';
 
 const Dashboard = () => {
     const { tasks } = useTaskContext();
 
     const taskCounts = {
-        pending: tasks.filter((task) => !task.completed && !task.archived).length,
-        completed: tasks.filter((task) => task.completed && !task.archived).length,
-        inProgress: tasks.filter((task) => task.inProgress && !task.archived).length,
+        pending: tasks.filter((task) => task.pending).length,
+        completed: tasks.filter((task) => task.completed).length,
         archived: tasks.filter((task) => task.archived).length,
     };
 
     const taskTypes = [
         { title: 'Pending Tasks', count: taskCounts.pending, color: Colors.warningYellow, status: 'Pending' },
         { title: 'Completed Tasks', count: taskCounts.completed, color: Colors.successGreen, status: 'Completed' },
-        { title: 'In Progress', count: taskCounts.inProgress, color: Colors.instagramLightPurple, status: 'In Progress' },
         { title: 'Archived Tasks', count: taskCounts.archived, color: Colors.facebookDarkGray, status: 'Archived' },
     ];
 
@@ -34,15 +33,18 @@ const Dashboard = () => {
                 </View>
             </View>
 
-            <View style={styles.cardContainer}>
+            <PerformanceGraph />
+
+            <View>
                 {taskTypes.map((taskType, index) => (
                     <Pressable
                         key={index}
-                        style={[styles.card, { backgroundColor: taskType.color }]}
+                        style={styles.taskRow}
                         onPress={() => router.push({ pathname: '/dashboard/taskCRUD', params: { status: taskType.status } })}
                     >
-                        <Text style={styles.cardTitle}>{taskType.title}</Text>
-                        <Text style={styles.cardCount}>{taskType.count}</Text>
+                        <View style={[styles.taskColorIndicator, { backgroundColor: taskType.color }]} />
+                        <Text style={styles.taskTitle}>{taskType.title}</Text>
+                        <Text style={styles.taskCount}>{taskType.count}</Text>
                     </Pressable>
                 ))}
             </View>
@@ -53,13 +55,12 @@ const Dashboard = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
+        paddingHorizontal: 20,
         backgroundColor: Colors.background,
     },
     profileContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 30,
         backgroundColor: Colors.facebookLightGray,
         borderRadius: 10,
         padding: 15,
@@ -85,33 +86,33 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: Colors.icon,
     },
-    cardContainer: {
-        flexWrap: 'wrap',
+    taskRow: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginVertical: 10,
-    },
-    card: {
-        flexBasis: '48%',
-        marginBottom: 20,
-        padding: 20,
-        borderRadius: 15,
         alignItems: 'center',
-        justifyContent: 'center',
-        shadowColor: Colors.text,
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-        elevation: 5,
-    },
-    cardTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: Colors.text,
+        paddingVertical: 15,
+        paddingHorizontal: 20,
         marginBottom: 10,
-        textAlign: 'center',
+        borderRadius: 10,
+        backgroundColor: Colors.facebookLightGray,
+        shadowColor: Colors.text,
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 3,
     },
-    cardCount: {
-        fontSize: 36,
+    taskColorIndicator: {
+        width: 15,
+        height: 15,
+        borderRadius: 7.5,
+        marginRight: 15,
+    },
+    taskTitle: {
+        flex: 1,
+        fontSize: 16,
+        fontWeight: '500',
+        color: Colors.text,
+    },
+    taskCount: {
+        fontSize: 18,
         fontWeight: 'bold',
         color: Colors.facebookDarkBlue,
     },

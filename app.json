@@ -15,7 +15,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/connection.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.deepak7.todo"
     },
     "web": {
       "bundler": "metro",
@@ -33,10 +34,19 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "784ef5fa-8aaa-4211-8036-5857eae2f466"
+      }
     }
   }
 }

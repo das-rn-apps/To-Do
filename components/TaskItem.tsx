@@ -1,84 +1,139 @@
-// TaskItem.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import { Task } from '@/types';
 import { Colors } from '@/constants/Colors';
+import { MaterialIcons } from '@expo/vector-icons';
+import moment from 'moment';
 
 interface TaskItemProps {
     task: Task;
     onToggleCompletion: (id: string) => void;
     onDelete: (id: string) => void;
+    onArchive: (id: string) => void;
+    onEdit: (id: string, text: string) => void;
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleCompletion, onDelete }) => {
+const TaskItem: React.FC<TaskItemProps> = ({
+    task,
+    onToggleCompletion,
+    onDelete,
+    onArchive,
+    onEdit,
+}) => {
+    const [showActions, setShowActions] = useState(false);
+    const formattedCreatedDate = moment(task.createdDate).fromNow();
+    const formattedUpdatedDate = moment(task.updatedDate).fromNow();
+
     return (
-        <View style={styles.taskItem}>
-            <TouchableOpacity onPress={() => onToggleCompletion(task.id)} style={styles.toggleCompletion}>
-                <Text
-                    style={[
-                        styles.taskText,
-                        task.completed && styles.taskCompletedText,
-                    ]}
+        <View style={styles.container}>
+            <View style={styles.topRow}>
+                <TouchableOpacity
+                    style={styles.taskTextContainer}
+                    onPress={() => onToggleCompletion(task.id)}
                 >
-                    {task.text}
-                </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => onDelete(task.id)} style={styles.deleteButtonContainer}>
-                <Text style={styles.deleteButton}>Delete</Text>
-            </TouchableOpacity>
+                    <Text style={[styles.taskText, task.completed && styles.completedText]}>
+                        {task.text}
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.completionCircle}
+                    onPress={() => onToggleCompletion(task.id)}
+                >
+                    <MaterialIcons
+                        name={task.completed ? 'check-circle' : 'radio-button-unchecked'}
+                        size={24}
+                        color={task.completed ? Colors.successGreen : Colors.icon}
+                    />
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.bottomRow}>
+                <View style={styles.datesContainer}>
+                    <Text style={styles.dateText}>Open since: {formattedCreatedDate}</Text>
+                    <Text style={styles.dateText}>Last Updated: {formattedUpdatedDate}</Text>
+                </View>
+                <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() => setShowActions(!showActions)}
+                >
+                    <MaterialIcons name="more-horiz" size={24} color={Colors.icon} />
+                </TouchableOpacity>
+                {showActions && (
+                    <View style={styles.actionsContainer}>
+                        <TouchableOpacity onPress={() => onEdit(task.id, "Hurrrrrrrrrrrrray")} style={styles.actionIcon}>
+                            <MaterialIcons name="edit" size={20} color={Colors.icon} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => onArchive(task.id)} style={styles.actionIcon}>
+                            <MaterialIcons name="archive" size={20} color={Colors.icon} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => onDelete(task.id)} style={styles.actionIcon}>
+                            <MaterialIcons name="delete" size={20} color={Colors.icon} />
+                        </TouchableOpacity>
+                    </View>
+                )}
+            </View>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    taskItem: {
+    container: {
+        backgroundColor: Colors.background,
+        padding: 10,
+        marginBottom: 10,
+        borderRadius: 10,
+        elevation: 3,
+        shadowColor: Colors.facebookBlue,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+    },
+    topRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 15,
-        marginVertical: 8,
-        backgroundColor: Colors.background, // Light background color from palette
-        borderRadius: 12,
-        shadowColor: '#000',
-        shadowOpacity: 0.15,
-        shadowRadius: 10,
-        elevation: 5,
-        marginHorizontal: 15,
-        overflow: 'hidden',
+        justifyContent: 'space-between',
     },
-    toggleCompletion: {
+    taskTextContainer: {
         flex: 1,
     },
     taskText: {
-        fontSize: 18,
-        color: Colors.text, // Dark text color for light theme
-        fontFamily: 'Roboto-Bold',
-        lineHeight: 24,
-        textTransform: 'capitalize',
-        letterSpacing: 0.5,
+        fontSize: 15,
+        color: Colors.facebookBlue,
+        fontWeight: '400',
     },
-    taskCompletedText: {
+    completedText: {
         textDecorationLine: 'line-through',
-        color: Colors.icon, // Gray for completed task text
-        // fontStyle: 'italic',
+        color: Colors.successGreen,
     },
-    deleteButtonContainer: {
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        backgroundColor: Colors.facebookLightGray, // Light gray background for delete button
-        borderRadius: 25,
-        marginLeft: 10,
-        borderWidth: 1,
-        borderColor: Colors.icon, // Dark gray border
-        shadowColor: '#000',
-        shadowOpacity: 0.05,
-        shadowRadius: 3,
-        elevation: 2,
+    completionCircle: {
+        padding: 5,
     },
-    deleteButton: {
-        color: Colors.instagramGradientEnd, // Red color for delete button
-        fontSize: 16,
-        fontWeight: '500',
-        textAlign: 'center',
+    bottomRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    datesContainer: {
+        flex: 1,
+    },
+    dateText: {
+        fontSize: 10,
+        color: Colors.icon,
+    },
+    actionButton: {
+        padding: 5,
+    },
+    actionsContainer: {
+        position: 'absolute',
+        top: -55,
+        right: 40,
+        shadowColor: Colors.facebookDarkBlue,
+        padding: 5,
+    },
+    actionIcon: {
+        paddingVertical: 5,
+        paddingHorizontal: 10,
     },
 });
 
