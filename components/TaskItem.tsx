@@ -1,84 +1,88 @@
 import React, { useState } from 'react';
-import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
-import { Task } from '@/types';
+import { Text, TouchableOpacity, View, StyleSheet, Pressable } from 'react-native';
+import { Priority, Task, TaskStatus } from '@/types';
 import { Colors } from '@/constants/Colors';
 import { MaterialIcons } from '@expo/vector-icons';
-import moment from 'moment';
+import UpdatetaskModal from './UpdateTask';
+import { getTime } from '@/utils/time';
+
 
 interface TaskItemProps {
     task: Task;
-    onToggleCompletion: (id: string) => void;
-    onDelete: (id: string) => void;
-    onArchive: (id: string) => void;
-    onEdit: (id: string, text: string) => void;
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({
-    task,
-    onToggleCompletion,
-    onDelete,
-    onArchive,
-    onEdit,
-}) => {
-    const [showActions, setShowActions] = useState(false);
-    const formattedCreatedDate = moment(task.createdDate).fromNow();
-    const formattedUpdatedDate = moment(task.updatedDate).fromNow();
+const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
+
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isStatusChangeVisisble, setIsStatusChangeVisisble] = useState(false);
+
+    const getPriorityInfo = (priority: string) => {
+        switch (priority) {
+            case 'low':
+                return { icon: 'check-circle' as const, color: Colors.successGreen };
+            case 'medium':
+                return { icon: 'access-time' as const, color: Colors.facebookBlue };
+            case 'high':
+                return { icon: 'local-fire-department' as const, color: Colors.notificationRed };
+            case 'urgent':
+                return { icon: 'warning' as const, color: Colors.errorRed };
+            default:
+                return { icon: 'help' as const, color: Colors.icon };
+        }
+    };
+
+    const { icon, color } = getPriorityInfo(task.priority);
+
 
     return (
-        <View style={styles.container}>
-            <View style={styles.topRow}>
-                <TouchableOpacity
-                    style={styles.taskTextContainer}
-                    onPress={() => onToggleCompletion(task.id)}
-                >
-                    <Text style={[styles.taskText, task.completed && styles.completedText]}>
-                        {task.text}
-                    </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.completionCircle}
-                    onPress={() => onToggleCompletion(task.id)}
-                >
-                    <MaterialIcons
-                        name={task.completed ? 'check-circle' : 'radio-button-unchecked'}
-                        size={24}
-                        color={task.completed ? Colors.successGreen : Colors.icon}
-                    />
-                </TouchableOpacity>
-            </View>
+        <View >
+            <Pressable style={styles.container}
+                onPress={() => { setIsModalVisible(true) }}
+            >
+                <View style={styles.topRow}>
+                    <View style={styles.taskTextContainer}>
 
-            <View style={styles.bottomRow}>
-                <View style={styles.datesContainer}>
-                    <Text style={styles.dateText}>Open since: {formattedCreatedDate}</Text>
-                    <Text style={styles.dateText}>Last Updated: {formattedUpdatedDate}</Text>
-                </View>
-                <TouchableOpacity
-                    style={styles.actionButton}
-                    onPress={() => setShowActions(!showActions)}
-                >
-                    <MaterialIcons name="more-horiz" size={24} color={Colors.icon} />
-                </TouchableOpacity>
-                {showActions && (
-                    <View style={styles.actionsContainer}>
-                        <TouchableOpacity onPress={() => onEdit(task.id, "Hurrrrrrrrrrrrray")} style={styles.actionIcon}>
-                            <MaterialIcons name="edit" size={20} color={Colors.icon} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => onArchive(task.id)} style={styles.actionIcon}>
-                            <MaterialIcons name="archive" size={20} color={Colors.icon} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => onDelete(task.id)} style={styles.actionIcon}>
-                            <MaterialIcons name="delete" size={20} color={Colors.icon} />
-                        </TouchableOpacity>
+                        <Text style={styles.taskTitle}>{task.title}</Text>
+                        {task.description && <Text style={styles.taskDescription}>{task.description.slice(0, 40)}{(task.description.length > 41) && "..."}</Text>}
                     </View>
-                )}
-            </View>
+                    <View style={{ marginTop: -20 }}>
+                        <MaterialIcons
+                            name={icon}
+                            size={24}
+                            color={color}
+                        />
+                    </View>
+                </View>
+
+                <View style={styles.datesContainer}>
+                    <View style={styles.dateRow}>
+                        <MaterialIcons name="date-range" size={16} color={Colors.icon} />
+                        <Text style={styles.dateText}>{getTime(task.createdDate)}</Text>
+                    </View>
+                    <View style={styles.dateRow}>
+                        <MaterialIcons name="update" size={16} color={Colors.successGreen} />
+                        <Text style={styles.dateText}>{getTime(task.updatedDate)}</Text>
+                    </View>
+                </View>
+                <UpdatetaskModal
+                    isVisible={isModalVisible}
+                    onClose={() => setIsModalVisible(false)}
+                    currentTask={task} />
+            </Pressable>
         </View>
     );
 };
 
+// Styles
 const styles = StyleSheet.create({
+    iconContainer: {
+        padding: 8, // Space around the icon
+        borderRadius: 12, // Rounded corners
+        alignItems: 'center', // Center the icon
+        justifyContent: 'center', // Center the icon vertically
+    },
     container: {
-        backgroundColor: Colors.background,
+        backgroundColor: Colors.card,
         padding: 10,
         marginBottom: 10,
         borderRadius: 10,
@@ -96,26 +100,33 @@ const styles = StyleSheet.create({
     taskTextContainer: {
         flex: 1,
     },
-    taskText: {
+    taskTitle: {
         fontSize: 15,
         color: Colors.facebookBlue,
-        fontWeight: '400',
+        fontWeight: '500',
+    },
+    taskDescription: {
+        fontSize: 12,
+        color: Colors.instagramLightPurple,
+        marginTop: 4,
     },
     completedText: {
         textDecorationLine: 'line-through',
         color: Colors.successGreen,
     },
-    completionCircle: {
+    statusIcon: {
         padding: 5,
     },
-    bottomRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: 10,
-    },
+
     datesContainer: {
-        flex: 1,
+        display: "flex",
+        flexDirection: 'row',
+        justifyContent: "space-between",
+        marginTop: 10
+    },
+    dateRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     dateText: {
         fontSize: 10,

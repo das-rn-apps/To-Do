@@ -1,23 +1,19 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { Task } from '@/types';
+import { Priority, Task, TaskStatus } from '@/types';
 import {
     initializeDatabase,
     fetchTasks,
     addTaskToDB,
-    updateTaskCompletion,
     deleteTaskFromDB,
-    updateTaskText,
-    archiveTaskInDB
+    updateTaskDetailsInDB,
 } from '@/utils/database';
 
 type TaskContextType = {
     tasks: Task[];
     setTasks: (tasks: Task[]) => void;
-    addTask: (taskText: string) => void;
-    toggleTaskCompletion: (taskId: string) => void;
+    addTask: (task: Task) => void;
     deleteTask: (taskId: string) => void;
-    archiveTask: (taskId: string) => void;
-    editTask: (taskId: string, text: string) => void;
+    editTask: (taskId: string, title: string, description: string, priority: Priority, status: TaskStatus) => void;
 };
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -25,35 +21,25 @@ const TaskContext = createContext<TaskContextType | undefined>(undefined);
 export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [tasks, setTasks] = useState<Task[]>([]);
 
-    // Initialize database and load tasks
     useEffect(() => {
         const loadTasks = async () => {
             try {
-                initializeDatabase(); // Ensure DB table exists
-                fetchTasks((loadedTasks) => setTasks(loadedTasks)); // Load tasks from DB
+                initializeDatabase();
+                fetchTasks((loadedTasks) => setTasks(loadedTasks));
+
             } catch (error) {
                 console.error('Failed to load tasks:', error);
             }
         };
-
         loadTasks();
     }, []);
 
-    const addTask = async (taskText: string): Promise<void> => {
-        if (taskText.trim()) {
-            const currentDate = new Date().toISOString(); // Get current date in ISO format
-            const newTask: Task = {
-                id: Date.now().toString(),
-                text: taskText,
-                completed: false,
-                pending: true,
-                archived: false,
-                createdDate: currentDate, // Set createdDate
-                updatedDate: currentDate, // Set updatedDate as well
-            };
+    // Add Task
+    const addTask = async (task: Task): Promise<void> => {
+        if (task.title.trim()) {
             try {
-                await addTaskToDB(newTask, () => {
-                    fetchTasks((updatedTasks) => setTasks(updatedTasks)); // Refresh tasks
+                await addTaskToDB(task, () => {
+                    fetchTasks((updatedTasks) => setTasks(updatedTasks));
                 });
             } catch (error) {
                 console.error('Failed to add task:', error);
@@ -61,47 +47,32 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const toggleTaskCompletion = async (taskId: string): Promise<void> => {
-        const task = tasks.find((t) => t.id === taskId);
-        if (task) {
-            const currentDate = new Date().toISOString();
-            try {
-                await updateTaskCompletion(taskId, !task.completed, !task.pending, currentDate, () => {
-                    fetchTasks((updatedTasks) => setTasks(updatedTasks));
-                });
-            } catch (error) {
-                console.error('Failed to toggle task completion:', error);
-            }
-        }
-    };
 
+    // Delete Task
     const deleteTask = async (taskId: string): Promise<void> => {
         try {
             await deleteTaskFromDB(taskId, () => {
-                fetchTasks((updatedTasks) => setTasks(updatedTasks)); // Refresh tasks
+                fetchTasks((updatedTasks) => setTasks(updatedTasks));
             });
         } catch (error) {
             console.error('Failed to delete task:', error);
         }
     };
-    const archiveTask = async (taskId: string): Promise<void> => {
-        try {
-            await archiveTaskInDB(taskId, () => {
-                fetchTasks((updatedTasks) => setTasks(updatedTasks)); // Refresh tasks
-            });
-        } catch (error) {
-            console.error('Failed to archive task:', error);
-        }
-    };
 
     // Edit Task
-    const editTask = async (taskId: string, newText: string): Promise<void> => {
+    const editTask = async (
+        taskId: string,
+        title: string,
+        description: string,
+        priority: Priority,
+        status: TaskStatus
+    ): Promise<void> => {
         const task = tasks.find((t) => t.id === taskId);
-        if (task && newText.trim()) {
-            const currentDate = new Date().toISOString();
+        if (task && title.trim()) {
+            const updatedDate = new Date().toISOString();
             try {
-                await updateTaskText(taskId, newText, currentDate, () => {
-                    fetchTasks((updatedTasks) => setTasks(updatedTasks)); // Refresh tasks
+                await updateTaskDetailsInDB(taskId, title, description, priority, status, updatedDate, () => {
+                    fetchTasks((updatedTasks) => setTasks(updatedTasks));
                 });
             } catch (error) {
                 console.error('Failed to edit task:', error);
@@ -111,14 +82,20 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return (
         <TaskContext.Provider
-            value={{ tasks, setTasks, addTask, toggleTaskCompletion, deleteTask, archiveTask, editTask }}
+            value={{
+                tasks,
+                setTasks,
+                addTask,
+                deleteTask,
+                editTask,
+            }}
         >
             {children}
         </TaskContext.Provider>
     );
-
 };
 
+// Custom Hook
 export const useTaskContext = () => {
     const context = useContext(TaskContext);
     if (!context) {

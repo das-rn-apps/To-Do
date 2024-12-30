@@ -1,6 +1,8 @@
 export const Colors = {
   text: 'rgb(17, 24, 28)', // Dark text color
+  modalBackground: 'rgb(89, 93, 96)', // Dark text color
   background: 'rgb(255, 255, 255)', // White background
+  card: 'rgb(233, 243, 252)', // White background
   tint: 'rgb(24, 119, 242)', // Facebook Blue
   icon: 'rgb(104, 112, 118)', // Icon color
   tabIconDefault: 'rgb(104, 112, 118)', // Default tab icon color

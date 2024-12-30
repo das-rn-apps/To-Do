@@ -6,9 +6,9 @@ import { useTaskContext } from '@/Context/TaskContext';
 
 const PerformanceGraph = () => {
     const { tasks } = useTaskContext();
-    const completedCount = tasks.filter((task) => task.completed).length;
-    const pendingCount = tasks.filter((task) => task.pending).length;
-    const archivedCount = tasks.filter((task) => task.archived).length;
+    const completedCount = tasks.filter((task) => task.status == "completed").length;
+    const pendingCount = tasks.filter((task) => task.status == "pending").length;
+    const archivedCount = tasks.filter((task) => task.status == "archived").length;
 
     const chartData = {
         labels: ['Pending', 'Completed', 'Archived'],

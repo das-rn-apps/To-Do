@@ -9,9 +9,9 @@ const Dashboard = () => {
     const { tasks } = useTaskContext();
 
     const taskCounts = {
-        pending: tasks.filter((task) => task.pending).length,
-        completed: tasks.filter((task) => task.completed).length,
-        archived: tasks.filter((task) => task.archived).length,
+        pending: tasks.filter((task) => task.status == "pending").length,
+        completed: tasks.filter((task) => task.status == "completed").length,
+        archived: tasks.filter((task) => task.status == "archived").length,
     };
 
     const taskTypes = [
@@ -40,7 +40,7 @@ const Dashboard = () => {
                     <Pressable
                         key={index}
                         style={styles.taskRow}
-                        onPress={() => router.push({ pathname: '/dashboard/taskCRUD', params: { status: taskType.status } })}
+                        onPress={() => router.push({ pathname: '/performance/taskCRUD', params: { status: taskType.status } })}
                     >
                         <View style={[styles.taskColorIndicator, { backgroundColor: taskType.color }]} />
                         <Text style={styles.taskTitle}>{taskType.title}</Text>
