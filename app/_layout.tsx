@@ -1,5 +1,6 @@
 import { Colors } from "@/constants/Colors";
 import { TaskProvider } from "@/Context/TaskContext";
+import { UserProvider } from "@/Context/UserContext";
 import { Stack } from "expo-router";
 import { SafeAreaView, StyleSheet } from "react-native";
 
@@ -7,10 +8,12 @@ export default function RootLayout() {
   return (
     <SafeAreaView style={styles.container}>
       <TaskProvider>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
+        <UserProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </UserProvider>
       </TaskProvider>
     </SafeAreaView>
   );

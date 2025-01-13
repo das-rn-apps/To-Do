@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { Colors } from '@/constants/Colors';
+import { useUserContext } from '@/Context/UserContext';
 
 interface DateDisplayProps {
     date?: string | Date;
@@ -9,6 +10,9 @@ interface DateDisplayProps {
 }
 
 const DateDisplay: React.FC<DateDisplayProps> = ({ date, username, profilePicUrl }) => {
+
+    const { user } = useUserContext();
+
     const formatDate = (inputDate: string | Date) => {
         const parsedDate = typeof inputDate === 'string' ? new Date(inputDate) : inputDate;
         return parsedDate.toLocaleDateString(undefined, {
@@ -25,12 +29,12 @@ const DateDisplay: React.FC<DateDisplayProps> = ({ date, username, profilePicUrl
         <View style={styles.container}>
             <View style={styles.headerContainer}>
                 <Image
-                    source={{ uri: profilePicUrl || "https://picsum.photos/100" }}
+                    source={{ uri: user?.profile_picture || "https://picsum.photos/100" }}
                     style={styles.profilePic}
                 />
                 <View style={styles.greetingContainer}>
                     <Text style={styles.greetingText}>
-                        Hey {username || "User"}, Good {getTimeOfDay()}!
+                        Hey {user?.name?.split(' ')[0] || "User"}, Good {getTimeOfDay()}!
                     </Text>
                     <Text style={styles.dateText}>{displayDate}</Text>
                 </View>

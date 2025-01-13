@@ -10,7 +10,7 @@ export default function NotFoundScreen() {
       <Stack.Screen options={{ title: 'Oops!' }} />
       <View style={styles.container}>
         <Text style={styles.errorText}>This screen doesn't exist.</Text>
-        <Pressable onPress={() => router.push('/(tabs)/explore')} style={styles.button}>
+        <Pressable onPress={() => router.push('/(tabs)/all')} style={styles.button}>
           <Text style={styles.buttonText}>Go to Home Screen</Text>
         </Pressable>
       </View>

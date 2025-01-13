@@ -6,7 +6,7 @@ import {
     addTaskToDB,
     deleteTaskFromDB,
     updateTaskDetailsInDB,
-} from '@/utils/database';
+} from '@/utils/taskDB';
 
 type TaskContextType = {
     tasks: Task[];

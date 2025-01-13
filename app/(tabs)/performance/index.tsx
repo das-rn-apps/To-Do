@@ -1,17 +1,19 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, Pressable } from 'react-native';
+import { StyleSheet, Text, View, Image, Pressable, TouchableOpacity } from 'react-native';
 import { useTaskContext } from '@/Context/TaskContext';
 import { Colors } from '@/constants/Colors';
 import { router } from 'expo-router';
 import PerformanceGraph from '@/components/PerformanceGraph';
+import UpdateUserProfile from '@/components/UpdateUserProfile';
+import { useUserContext } from '@/Context/UserContext';
 
 const Dashboard = () => {
     const { tasks } = useTaskContext();
-
+    const { user } = useUserContext();
     const taskCounts = {
-        pending: tasks.filter((task) => task.status == "pending").length,
-        completed: tasks.filter((task) => task.status == "completed").length,
-        archived: tasks.filter((task) => task.status == "archived").length,
+        pending: tasks.filter((task) => task.status === "pending").length,
+        completed: tasks.filter((task) => task.status === "completed").length,
+        archived: tasks.filter((task) => task.status === "archived").length,
     };
 
     const taskTypes = [
@@ -22,20 +24,24 @@ const Dashboard = () => {
 
     return (
         <View style={styles.container}>
+            {/* Profile Section */}
             <View style={styles.profileContainer}>
                 <Image
-                    source={{ uri: 'https://via.placeholder.com/100' }}
+                    source={{ uri: user?.profile_picture || 'https://picsum.photos/100' }}
                     style={styles.profileImage}
                 />
-                <View>
-                    <Text style={styles.profileName}>John Doe</Text>
-                    <Text style={styles.profileSubtitle}>Welcome back!</Text>
+                <View style={styles.profileDetails}>
+                    <Text style={styles.profileName}>{user?.name}</Text>
+                    <Text style={styles.profileSubtitle}>{user?.email}</Text>
                 </View>
+                <UpdateUserProfile />
             </View>
 
+            {/* Performance Graph */}
             <PerformanceGraph />
 
-            <View>
+            {/* Task Types Section */}
+            <View style={styles.taskTypesContainer}>
                 {taskTypes.map((taskType, index) => (
                     <Pressable
                         key={index}
@@ -62,37 +68,53 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: Colors.facebookLightGray,
-        borderRadius: 10,
-        padding: 15,
+        borderRadius: 12,
+        padding: 10,
         shadowColor: Colors.text,
         shadowOpacity: 0.1,
         shadowRadius: 5,
-        elevation: 4,
+        elevation: 5,
+        marginBottom: 20,
     },
     profileImage: {
-        width: 80,
-        height: 80,
+        width: 60,
+        height: 60,
         borderRadius: 40,
-        marginRight: 15,
-        borderWidth: 2,
-        borderColor: Colors.primaryButtonColor,
+        marginRight: 10,
+    },
+    profileDetails: {
+        flex: 1,
     },
     profileName: {
-        fontSize: 26,
+        fontSize: 20,
         fontWeight: 'bold',
         color: Colors.text,
     },
     profileSubtitle: {
-        fontSize: 16,
+        fontSize: 10,
         color: Colors.icon,
+    },
+    editProfileButton: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: Colors.facebookLightGray,
+        padding: 10,
+        borderRadius: 50,
+        shadowColor: Colors.text,
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 3,
+    },
+    taskTypesContainer: {
+        marginTop: 20,
     },
     taskRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 15,
+        paddingVertical: 18,
         paddingHorizontal: 20,
-        marginBottom: 10,
-        borderRadius: 10,
+        marginBottom: 12,
+        borderRadius: 12,
         backgroundColor: Colors.facebookLightGray,
         shadowColor: Colors.text,
         shadowOpacity: 0.1,
@@ -100,9 +122,9 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     taskColorIndicator: {
-        width: 15,
-        height: 15,
-        borderRadius: 7.5,
+        width: 18,
+        height: 18,
+        borderRadius: 9,
         marginRight: 15,
     },
     taskTitle: {
@@ -112,7 +134,7 @@ const styles = StyleSheet.create({
         color: Colors.text,
     },
     taskCount: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
         color: Colors.facebookDarkBlue,
     },

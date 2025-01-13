@@ -35,3 +35,4 @@ export const BusinessIcon = ({ color, size }: { color?: string; size?: number })
 export const BellIcon = ({ color, size }: { color?: string; size?: number }) => <FontAwesome name="bell" size={size || defaultSize} color={color || defaultColor} />;
 export const FlagIcon = ({ color, size }: { color?: string; size?: number }) => <FontAwesome name="flag" size={size || defaultSize} color={color || defaultColor} />;
 export const LockIcon = ({ color, size }: { color?: string; size?: number }) => <FontAwesome name="lock" size={size || defaultSize} color={color || defaultColor} />;
+export const Photo = ({ color, size }: { color?: string; size?: number }) => <FontAwesome name="photo" size={size || defaultSize} color={color || defaultColor} />;

@@ -4,7 +4,7 @@
     "slug": "todo",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/connection.png",
+    "icon": "./assets/images/m.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,7 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/connection.png",
+        "foregroundImage": "./assets/images/m.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.deepak7.todo"
@@ -21,14 +21,14 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/m.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/m.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
